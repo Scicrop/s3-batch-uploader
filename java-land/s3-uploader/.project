@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>s3-uploader</name>
+	<name>s3-batch-uploader</name>
 	<comment></comment>
 	<projects>
 	</projects>
