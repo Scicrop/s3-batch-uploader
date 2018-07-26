@@ -1,6 +1,7 @@
 package br.com.scicrop.entities;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -19,12 +20,15 @@ public class FileEntity implements Serializable{
 	private String sourcePath;
 	private String sourceIp;
 	
-	public FileEntity(File file, String md5, String extension) {
+	public FileEntity(File file,  String extension) {
 		try {
 		this.dtCreationFile = new Date(file.lastModified());
 		this.dtCreation = new Date();
 		this.fileName = file.getName();
 		this.sourcePath = file.getAbsolutePath();
+		String md5 = "";
+		FileInputStream fis = new FileInputStream(file);
+		md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
 		this.md5 = md5;
 		this.fileExtension = extension;
 		Socket socket = new Socket();
