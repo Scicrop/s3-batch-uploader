@@ -5,17 +5,19 @@ public class AppProperties {
 	private String aws_access_key_id = null;
 	private String aws_secret_access_key = null;
 	private String bucketnName = null;
-
+	
 	private String folder = null;
 	private String orderBy = null;
 	private String overwrite = null;
 	private String verbose = null;
 	private String log = null;
+	private String md5name = null;
 	private String fileextension = null;
+	private String fileaggregator = null;
 	
-	public static final String[] KEY_NAMES = new String[]{"aws_access_key_id", "aws_secret_access_key", "bucketname", "folder", "orderby", "overwrite", "verbose", "log", "fileextension"};
+	public static final String[] KEY_NAMES = new String[]{"aws_access_key_id", "aws_secret_access_key", "bucketname", "folder", "orderby", "overwrite", "verbose", "log", "fileextension", "md5name", "fileaggregator"};
 	
-	public AppProperties(String aws_access_key_id, String aws_secret_access_key, String bucketnName, String folder, String orderBy, String overwrite, String verbose, String log, String fileextension) {
+	public AppProperties(String aws_access_key_id, String aws_secret_access_key, String bucketnName, String folder, String orderBy, String overwrite, String verbose, String log, String fileextension, String md5name, String fileaggregator) {
 		super();
 		this.aws_access_key_id = aws_access_key_id;
 		this.aws_secret_access_key = aws_secret_access_key;
@@ -26,6 +28,8 @@ public class AppProperties {
 		this.verbose = verbose;
 		this.log = log;
 		this.fileextension = fileextension;
+		this.md5name = md5name;
+		this.fileaggregator = fileaggregator;
 	}
 	public String getBucketnName() {
 		return bucketnName;
@@ -33,7 +37,6 @@ public class AppProperties {
 	public void setBucketnName(String bucketnName) {
 		this.bucketnName = bucketnName;
 	}
-
 	public String getFolder() {
 		return folder;
 	}
@@ -82,9 +85,17 @@ public class AppProperties {
 	public void setFileextension(String fileextension) {
 		this.fileextension = fileextension;
 	}
+	public String getMd5name() {
+		return md5name;
+	}
+	public void setMd5name(String md5name ) {
+		this.md5name = md5name;
+	}
+	public String getFileaggregator() {
+		return fileaggregator;
+	}
+	public void setFileaggregator(String fileaggregator) {
+		this.fileaggregator = fileaggregator;
+	}
 	
-	
-	
-	
-
 }

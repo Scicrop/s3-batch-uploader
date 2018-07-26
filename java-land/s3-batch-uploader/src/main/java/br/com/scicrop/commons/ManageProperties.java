@@ -23,7 +23,8 @@ public class ManageProperties {
 		AppProperties appProperties = null;
 		
 		
-			appProperties = new AppProperties(getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[0]),
+			appProperties = new AppProperties(
+					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[0]),
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[1]),
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[2]),
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[3]),
@@ -31,7 +32,10 @@ public class ManageProperties {
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[5]),
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[6]),
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[7]),
-					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[8]));
+					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[8]),
+					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[9]),
+					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[10])
+					);
 		
 		
 		

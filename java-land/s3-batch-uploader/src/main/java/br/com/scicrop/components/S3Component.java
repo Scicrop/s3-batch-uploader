@@ -44,36 +44,19 @@ public class S3Component {
 		return INSTANCE;
 	}
 	
-	public void upload(AppProperties appProperties, File uploadFile, String keyName) throws TopLevelException{
+	public void upload(AppProperties appProperties, File uploadFile, String keyName,String md5, boolean md5Name) throws TopLevelException{
 		AmazonS3 s3client = getS3Client(appProperties);
         try {
         	Utils.getInstance().handleVerboseLog(appProperties, 'i', "Uploading a new object to S3 from a file\n");
-            s3client.putObject(new PutObjectRequest(appProperties.getBucketnName(), keyName, uploadFile));
+        	
+        	String ext = uploadFile.getName().substring(uploadFile.getName().lastIndexOf(".") + 1);
+        	if(md5Name == true) {
+            	keyName = md5;
+            }
+            keyName += "."+ext;
             
-            FileInputStream fis = new FileInputStream(uploadFile);
-            String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
-            fis.close();
-            
-            Date dt_file = new Date(uploadFile.lastModified());
-            Date dt_today = new Date();
-            String ip;
-          
-            Socket socket = new Socket();
-            socket.connect(new InetSocketAddress("google.com", 80));
-            ip = socket.getLocalAddress().toString();
-            
-            	  
-            FileEntity json = new FileEntity(0, uploadFile.getName(), md5, uploadFile.getName().substring(uploadFile.getName().lastIndexOf(".") + 1), dt_file, dt_today,uploadFile.getAbsolutePath() ,ip);
-            
-            Gson gson = new Gson();
-            String jsonString = gson.toJson(json);
-             FileWriter writer = new FileWriter("/tmp/s3-uploader.json");
-             writer.write(jsonString);
-             writer.close();
-            
-            
-            Utils.getInstance().handleVerboseLog(appProperties, 'i', "Uploading a new JSON object to S3 from a file\n");
-            s3client.putObject(new PutObjectRequest(appProperties.getBucketnName(), uploadFile.getName()+".json", new File("/tmp/s3-uploader.json") ));
+        	s3client.putObject(new PutObjectRequest(appProperties.getBucketnName(), keyName, uploadFile));
+         
          } catch (AmazonServiceException ase) {
         	Utils.getInstance().handleVerboseLog(appProperties, 'e', "Caught an AmazonServiceException, which " +
             		"means your request made it " +
@@ -94,10 +77,7 @@ public class S3Component {
                     "communicate with S3, " +
                     "such as not being able to access the network. Error Message: " + ace.getMessage());
 
-        } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        }
 	}
 	
 	public boolean isValidFile(AppProperties appProperties, String keyName) throws TopLevelException {
