@@ -34,10 +34,12 @@ public class FileEntity implements Serializable{
 		Socket socket = new Socket();
 		socket.connect(new InetSocketAddress("google.com", 80));
 		this.sourceIp = socket.getLocalAddress().toString();
+		socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	
 	}
 
 	public FileEntity( String fileName, String md5, String fileExtension, Date dtCreation, Date dtCreationFile,

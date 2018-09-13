@@ -1,14 +1,6 @@
 package br.com.scicrop.components;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.Date;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -21,12 +13,10 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.google.gson.Gson;
 
 import br.com.scicrop.commons.TopLevelException;
 import br.com.scicrop.commons.Utils;
 import br.com.scicrop.entities.AppProperties;
-import br.com.scicrop.entities.FileEntity;
 
 public class S3Component {
 	

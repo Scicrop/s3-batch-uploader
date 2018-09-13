@@ -32,6 +32,8 @@ import br.com.scicrop.components.S3Component;
 import br.com.scicrop.entities.AppProperties;
 import br.com.scicrop.entities.FileEntity;
 
+
+
 public class S3BatchUploader {
 
 
@@ -53,7 +55,7 @@ public class S3BatchUploader {
 		String propertiesFilePath = Constants.POSIX_DEFAULT_PROPERTIES_FILE_PATH;
 		
 		if(Utils.getInstance().isWindows()){
-			propertiesFilePath = Utils.getInstance().getWorkingDir()+"/"+Constants.WIN_DEFAULT_PROPERTIES_FILE_PATH;
+			propertiesFilePath = Utils.getInstance().getWorkingDir()+"\\"+Constants.WIN_DEFAULT_PROPERTIES_FILE_PATH;
 		}
 
 		if(args != null && args.length > 0){
