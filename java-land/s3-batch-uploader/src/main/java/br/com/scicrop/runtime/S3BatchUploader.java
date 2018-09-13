@@ -50,7 +50,11 @@ public class S3BatchUploader {
 		}
 
 
-		String propertiesFilePath = Constants.DEFAULT_PROPERTIES_FILE_PATH;
+		String propertiesFilePath = Constants.POSIX_DEFAULT_PROPERTIES_FILE_PATH;
+		
+		if(Utils.getInstance().isWindows()){
+			propertiesFilePath = Utils.getInstance().getWorkingDir()+"/"+Constants.WIN_DEFAULT_PROPERTIES_FILE_PATH;
+		}
 
 		if(args != null && args.length > 0){
 			propertiesFilePath = args[0];

@@ -20,6 +20,22 @@ public class Utils {
 		return INSTANCE;
 	}
 
+	
+	public String getWorkingDir(){
+		return System.getProperty("user.dir");
+	}
+	
+	public boolean isWindows(){
+		
+		boolean isWindows = false;
+		
+		String osName = System.getProperty("os.name").toLowerCase();
+		
+		isWindows = osName.indexOf("win") >= 0;
+		
+		return isWindows;
+	}
+	
 	public void handleVerboseLog(AppProperties appProperties, char type, String data){
 
 		if(appProperties != null){
