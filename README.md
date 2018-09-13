@@ -15,6 +15,7 @@ folder=/tmp
 orderby=datedesc
 overwrite=yes
 verbose=yes
+md5name=no
 log=yes
 fileextension=pdf;png
 ```
