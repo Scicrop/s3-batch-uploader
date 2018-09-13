@@ -125,7 +125,6 @@ public class S3BatchUploader {
 						fis.close();
 						
 						for (String ag : aggregators) {
-							System.out.println(ag);
 							if(extension.equals(ag)) {
 								if(repetidos.containsKey(fileName)) {
 									md5 = repetidos.get(fileName);
@@ -135,14 +134,13 @@ public class S3BatchUploader {
 							}
 						}
 						
-						System.out.println(md5);
 						List<FileEntity> listaJson = null;
 						if(jsons.containsKey(md5)) {
 							listaJson =  jsons.get(md5);
 						}else {
 							listaJson = new ArrayList<FileEntity>();
 						}
-						FileEntity json = new FileEntity(file, md5, extension);
+						FileEntity json = new FileEntity(file, extension);
 						listaJson.add(json);
 						jsons.put(md5, listaJson);
 					
@@ -162,7 +160,6 @@ public class S3BatchUploader {
 
 				while (iter.hasNext()) {
 					Map.Entry mEntry = (Map.Entry) iter.next();
-					System.out.println(mEntry.getKey() + " : " + mEntry.getValue());
 					List<FileEntity> listaJson = null;
 					listaJson =  jsons.get(mEntry.getKey());
 					
