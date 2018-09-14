@@ -4,6 +4,7 @@ public class AppProperties {
 	
 	private String aws_access_key_id = null;
 	private String aws_secret_access_key = null;
+	private String region = null;
 	private String bucketnName = null;
 	
 	private String folder = null;
@@ -15,9 +16,9 @@ public class AppProperties {
 	private String fileextension = null;
 	private String fileaggregator = null;
 	
-	public static final String[] KEY_NAMES = new String[]{"aws_access_key_id", "aws_secret_access_key", "bucketname", "folder", "orderby", "overwrite", "verbose", "log", "fileextension", "md5name", "fileaggregator"};
+	public static final String[] KEY_NAMES = new String[]{"aws_access_key_id", "aws_secret_access_key", "region", "bucketname", "folder", "orderby", "overwrite", "verbose", "log", "fileextension", "md5name", "fileaggregator"};
 	
-	public AppProperties(String aws_access_key_id, String aws_secret_access_key, String bucketnName, String folder, String orderBy, String overwrite, String verbose, String log, String fileextension, String md5name, String fileaggregator) {
+	public AppProperties(String aws_access_key_id, String aws_secret_access_key, String region, String bucketnName, String folder, String orderBy, String overwrite, String verbose, String log, String fileextension, String md5name, String fileaggregator) {
 		super();
 		this.aws_access_key_id = aws_access_key_id;
 		this.aws_secret_access_key = aws_secret_access_key;
@@ -30,6 +31,7 @@ public class AppProperties {
 		this.fileextension = fileextension;
 		this.md5name = md5name;
 		this.fileaggregator = fileaggregator;
+		this.setRegion(region);
 	}
 	public String getBucketnName() {
 		return bucketnName;
@@ -96,6 +98,12 @@ public class AppProperties {
 	}
 	public void setFileaggregator(String fileaggregator) {
 		this.fileaggregator = fileaggregator;
+	}
+	public String getRegion() {
+		return region;
+	}
+	public void setRegion(String region) {
+		this.region = region;
 	}
 	
 }

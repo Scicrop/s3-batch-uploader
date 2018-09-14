@@ -34,7 +34,8 @@ public class ManageProperties {
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[7]),
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[8]),
 					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[9]),
-					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[10])
+					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[10]),
+					getPropertyByName(propertiesFilePath, AppProperties.KEY_NAMES[11])
 					);
 		
 		

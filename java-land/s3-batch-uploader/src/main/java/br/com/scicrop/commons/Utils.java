@@ -1,7 +1,10 @@
 package br.com.scicrop.commons;
 
+import java.text.DecimalFormat;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 
 import br.com.scicrop.entities.AppProperties;
 
@@ -87,5 +90,20 @@ public class Utils {
 			break;
 		}
 
+	}
+	
+	public void printTransferProgress(String fileName, long completeFileSize, long transferedFileSize) {
+
+		System.out.print(fileName + ": " + formatTransferedProgress(completeFileSize, transferedFileSize)+"\r");
+	}
+
+	public String formatTransferedProgress(long completeFileSize, long transferedFileSize) {
+		DecimalFormat dfa = new DecimalFormat("000.0");
+		DecimalFormat dfb = new DecimalFormat("###,###,###,###");
+		double currentProgress;
+		String formatedProgress;
+		currentProgress = ((((double)transferedFileSize) * 100) / ((double)completeFileSize));
+		formatedProgress = dfa.format(currentProgress)+"% "+dfb.format(transferedFileSize) + " bytes";
+		return formatedProgress;
 	}
 }

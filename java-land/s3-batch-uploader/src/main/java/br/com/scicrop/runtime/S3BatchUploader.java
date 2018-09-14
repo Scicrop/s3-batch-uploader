@@ -22,6 +22,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.transfer.Transfer;
 import com.google.gson.Gson;
 
 import br.com.scicrop.commons.Constants;
@@ -38,25 +41,36 @@ public class S3BatchUploader {
 
 
 	public static void main(String[] args) {
-
+		FileWriter writer = null;
+		String jsonFileName = "/tmp/s3-uploader.json";
+		File jsonFile = null;
+		FileInputStream fis = null;
+		
+		String propertiesFilePath = Constants.POSIX_DEFAULT_PROPERTIES_FILE_PATH;
+		String logPath = Constants.LOG_PATH; 
+		
+		if(Utils.getInstance().isWindows()){
+			propertiesFilePath = Utils.getInstance().getWorkingDir()+"\\"+Constants.WIN_DEFAULT_PROPERTIES_FILE_PATH;
+			jsonFileName = Utils.getInstance().getWorkingDir()+"\\s3-uploader.json";
+			logPath = Utils.getInstance().getWorkingDir()+"\\"+Constants.LOG_FILE_NAME;
+		}
+		
+		
+		
+		
 		Logger rootLogger = Logger.getRootLogger();
 		rootLogger.setLevel(Level.INFO);
 		PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
 		rootLogger.addAppender(new ConsoleAppender(layout));
 		try {
 
-			RollingFileAppender fileAppender = new RollingFileAppender(layout, Constants.LOG_FILE);
+			RollingFileAppender fileAppender = new RollingFileAppender(layout, logPath);
 			rootLogger.addAppender(fileAppender);
 		} catch (IOException e) {
-			System.err.println("Failed to find/access "+Constants.LOG_FILE+" !");
+			System.err.println("Failed to find/access "+logPath+" !");
 		}
 
-
-		String propertiesFilePath = Constants.POSIX_DEFAULT_PROPERTIES_FILE_PATH;
 		
-		if(Utils.getInstance().isWindows()){
-			propertiesFilePath = Utils.getInstance().getWorkingDir()+"\\"+Constants.WIN_DEFAULT_PROPERTIES_FILE_PATH;
-		}
 
 		if(args != null && args.length > 0){
 			propertiesFilePath = args[0];
@@ -121,10 +135,20 @@ public class S3BatchUploader {
 					if(!file.isDirectory()){
 						String fileName  = file.getName().substring(0,file.getName().length() - file.getName().substring(file.getName().lastIndexOf(".") + 1).length() - 1);
 						String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
-						String md5 = "";
-						FileInputStream fis = new FileInputStream(file);
-						md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
-						fis.close();
+						String md5 = null;
+						
+						try{
+							fis = new FileInputStream(file);
+							System.out.println("Calculating md5... ("+file.getName()+")");
+							md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+							System.out.println("Finished md5 calculation... ("+file.getName()+": "+md5+")");
+						}catch(IOException ioe){
+							Utils.getInstance().handleVerboseLog(appProperties, 'e', ioe.getMessage());
+							System.exit(1);
+						}finally {
+							if(fis != null) fis.close();
+						}
+						
 						
 						for (String ag : aggregators) {
 							if(extension.equals(ag)) {
@@ -168,10 +192,28 @@ public class S3BatchUploader {
 
 					Gson gson = new Gson();
 					String jsonString = gson.toJson(listaJson);
-					FileWriter writer = new FileWriter("/tmp/s3-uploader.json");
-					writer.write(jsonString);
-					writer.close();
-					S3Component.getInstance().upload(appProperties, new File("/tmp/s3-uploader.json"), jsons.get(mEntry.getKey()).get(0).getFileName(),mEntry.getKey().toString(),md5Name);
+					
+					try{
+						writer = new FileWriter(jsonFileName);
+						writer.write(jsonString);
+						
+						jsonFile = new File(jsonFileName);
+						
+						S3Component.getInstance().upload(appProperties, jsonFile, jsons.get(mEntry.getKey()).get(0).getFileName(),mEntry.getKey().toString(),md5Name);
+						
+					} catch (IOException e) {
+						Utils.getInstance().handleVerboseLog(appProperties, 'e', e.getMessage());
+					}finally {
+						if(writer != null){
+							try {
+								writer.close();
+							} catch (IOException ioe) {
+								Utils.getInstance().handleVerboseLog(appProperties, 'e', ioe.getMessage());
+							}
+						}
+						if(jsonFile != null && jsonFile.exists() && jsonFile.isFile()) jsonFile.delete();
+					}
+					
 				}
 				
 				
@@ -182,6 +224,6 @@ public class S3BatchUploader {
 		}
 
 
-
 	}
+		
 }
