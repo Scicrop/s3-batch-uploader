@@ -176,7 +176,7 @@ public class S3BatchUploader {
 						}else {
 							if(!S3Component.getInstance().isValidFile(appProperties, file.getName())) {
 								S3Component.getInstance().upload(appProperties, file, fileName,md5,md5Name);
-							}
+							}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": is a invalid file. Skipped!");
 						}
 						Utils.getInstance().handleVerboseLog(appProperties, 'i', "File: "+file.getName()+" - " + new Date(file.lastModified()));
 					}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": is a directory. Skipped!");

@@ -28,15 +28,15 @@ public class S3Component {
 	private static S3Component INSTANCE = null;
 
 	private static long transfered = 0;
-	
+
 	private S3Component(){}
 
 	public AmazonS3 getS3Client(AppProperties appProperties){
 		AWSCredentials credentials = new BasicAWSCredentials(appProperties.getAws_access_key_id(), appProperties.getAws_secret_access_key());
-		
+
 		AmazonS3 client = AmazonS3Client.builder().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(appProperties.getRegion()).build();
-		
-		
+
+
 		return client;
 	}
 
@@ -50,10 +50,6 @@ public class S3Component {
 
 
 		try {
-			//Utils.getInstance().handleVerboseLog(appProperties, 'i', "Uploading a new object to S3 from a file\n");
-
-
-
 
 			String ext = uploadFile.getName().substring(uploadFile.getName().lastIndexOf(".") + 1);
 			if(md5Name == true) {
@@ -61,9 +57,7 @@ public class S3Component {
 			}
 			keyName += "."+ext;
 
-			//s3client.putObject(new PutObjectRequest(appProperties.getBucketnName(), keyName, uploadFile));
-			
-			uploadFileWithListener(keyName, appProperties.getBucketnName(), false, uploadFile, s3client);
+			uploadFileWithListener(keyName, appProperties.getBucketnName(), uploadFile, s3client);
 
 		} catch (AmazonServiceException ase) {
 			Utils.getInstance().handleVerboseLog(appProperties, 'e', "Caught an AmazonServiceException, which " +
@@ -110,35 +104,30 @@ public class S3Component {
 	}
 
 
-	public void uploadFileWithListener(String key_name,
-			String bucket_name, boolean pause, File uploadFile, AmazonS3 s3client)
-	{
-		
+	public void uploadFileWithListener(String key_name, String bucket_name, File uploadFile, AmazonS3 s3client) {
 
-		
-		
 		TransferManager xfer_mgr = TransferManagerBuilder.standard().withS3Client(s3client).build();
-		
+
 		transfered = 0;
-		
+
 		try {
-			Upload u = xfer_mgr.upload(bucket_name, key_name, uploadFile);			// print an empty progress bar...
-			
+			Upload u = xfer_mgr.upload(bucket_name, key_name, uploadFile);			
+
 			u.addProgressListener(new ProgressListener() {
 				public void progressChanged(ProgressEvent e) {
-					
+
 					long tSum = transfered = transfered + e.getBytesTransferred();
-					
+
 					if(tSum < uploadFile.length()) transfered = tSum;
 					else transfered = uploadFile.length();
-					
+
 					//System.out.println(uploadFile.getName() + ": "+uploadFile.length()+ " | " +transfered);
-					
+
 					Utils.getInstance().printTransferProgress(uploadFile.getName(), uploadFile.length(), transfered);
-					
+
 				}
 			});
-			
+			waitForCompletion(u);
 		} catch (AmazonServiceException e) {
 			System.err.println(e.getErrorMessage());
 			System.exit(1);
@@ -147,6 +136,20 @@ public class S3Component {
 	}
 
 
-	
+	private void waitForCompletion(Upload xfer)
+    {
+        try {
+            xfer.waitForCompletion();
+        } catch (AmazonServiceException e) {
+            System.err.println("Amazon service error: " + e.getMessage());
+            System.exit(1);
+        } catch (AmazonClientException e) {
+            System.err.println("Amazon client error: " + e.getMessage());
+            System.exit(1);
+        } catch (InterruptedException e) {
+            System.err.println("Transfer interrupted: " + e.getMessage());
+            System.exit(1);
+        }
+    }
 
 }
