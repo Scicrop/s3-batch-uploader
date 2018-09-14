@@ -11,13 +11,14 @@ In order to run this software, you must to write the properties file:
 aws_access_key_id = XYZ
 aws_secret_access_key = XYZ 
 bucketname=my-bucket-name
-folder=/tmp
+folder=C:\\
 orderby=datedesc
-overwrite=yes
+overwrite=no
+md5name=yes
+fileaggregator=shp;dbf;shx
 verbose=yes
-md5name=no
 log=yes
-fileextension=pdf;png
+fileextension=shp;dbf;shx;jpg;tif
 ```
 
 The fileextension property does not accept wildcards, the only exception is * which means all files.
