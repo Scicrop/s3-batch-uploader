@@ -9,7 +9,8 @@ In order to run this software, you must to write the properties file:
 
 ```
 aws_access_key_id = XYZ
-aws_secret_access_key = XYZ 
+aws_secret_access_key = XYZ
+region=us-east-1
 bucketname=my-bucket-name
 folder=C:\\
 orderby=datedesc
