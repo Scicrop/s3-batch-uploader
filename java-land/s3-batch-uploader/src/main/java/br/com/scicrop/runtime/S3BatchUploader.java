@@ -22,14 +22,11 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.transfer.Transfer;
 import com.google.gson.Gson;
+import com.scicrop.agroapi.commons.exceptions.SciCropAgroApiException;
 
 import br.com.scicrop.commons.Constants;
 import br.com.scicrop.commons.ManageProperties;
-import br.com.scicrop.commons.TopLevelException;
 import br.com.scicrop.commons.Utils;
 import br.com.scicrop.components.S3Component;
 import br.com.scicrop.entities.AppProperties;
@@ -79,7 +76,7 @@ public class S3BatchUploader {
 		AppProperties appProperties = null;
 		try {
 			appProperties = ManageProperties.getInstance().getAppProperties(propertiesFilePath);
-		} catch (TopLevelException e) {
+		} catch (SciCropAgroApiException e) {
 			System.err.println("********************************************************************************************");
 			System.err.println("Unable to find properties file: "+propertiesFilePath);
 			System.err.println("********************************************************************************************");
@@ -132,7 +129,7 @@ public class S3BatchUploader {
 				for (int i = 0; i < filesArray.length; i++) {
 					File file = filesArray[i];
 
-					if(!file.isDirectory()){
+					if(!file.isDirectory() && file.exists()){
 						String fileName  = file.getName().substring(0,file.getName().length() - file.getName().substring(file.getName().lastIndexOf(".") + 1).length() - 1);
 						String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
 						String md5 = null;
@@ -144,7 +141,7 @@ public class S3BatchUploader {
 							System.out.println("Finished md5 calculation... ("+file.getName()+": "+md5+")");
 						}catch(IOException ioe){
 							Utils.getInstance().handleVerboseLog(appProperties, 'e', ioe.getMessage());
-							System.exit(1);
+							continue;
 						}finally {
 							if(fis != null) fis.close();
 						}
@@ -170,16 +167,9 @@ public class S3BatchUploader {
 						listaJson.add(json);
 						jsons.put(md5, listaJson);
 					
-						if(appProperties.getOverwrite().equalsIgnoreCase("yes")) {
-							S3Component.getInstance().upload(appProperties, file, fileName,md5,md5Name);
-							
-						}else {
-							if(!S3Component.getInstance().isValidFile(appProperties, file.getName())) {
-								S3Component.getInstance().upload(appProperties, file, fileName,md5,md5Name);
-							}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": is a invalid file. Skipped!");
-						}
+						checkOverwriteUpload(appProperties, file, fileName, md5);
 						Utils.getInstance().handleVerboseLog(appProperties, 'i', "File: "+file.getName()+" - " + new Date(file.lastModified()));
-					}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": is a directory. Skipped!");
+					}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": is a directory, or file does not exist. Skipped!");
 				}
 				
 				Iterator iter = jsons.entrySet().iterator();
@@ -199,7 +189,8 @@ public class S3BatchUploader {
 						
 						jsonFile = new File(jsonFileName);
 						
-						S3Component.getInstance().upload(appProperties, jsonFile, jsons.get(mEntry.getKey()).get(0).getFileName(),mEntry.getKey().toString(),md5Name);
+						checkOverwriteUpload(appProperties, jsonFile, jsons.get(mEntry.getKey()).get(0).getFileName(), mEntry.getKey().toString());
+						//S3Component.getInstance().upload(appProperties, jsonFile, jsons.get(mEntry.getKey()).get(0).getFileName(),mEntry.getKey().toString());
 						
 					} catch (IOException e) {
 						Utils.getInstance().handleVerboseLog(appProperties, 'e', e.getMessage());
@@ -224,6 +215,18 @@ public class S3BatchUploader {
 		}
 
 
+	}
+
+	private static void checkOverwriteUpload(AppProperties appProperties, File file, String fileName, String md5)
+			throws SciCropAgroApiException {
+		if(appProperties.getOverwrite().equalsIgnoreCase("yes")) {
+			S3Component.getInstance().upload(appProperties, file, fileName,md5);
+			
+		}else {
+			if(!S3Component.getInstance().isValidFile(appProperties, file.getName())) {
+				S3Component.getInstance().upload(appProperties, file, fileName,md5);
+			}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": already uploaded. Skipped!");
+		}
 	}
 		
 }

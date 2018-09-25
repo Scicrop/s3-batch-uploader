@@ -119,6 +119,11 @@
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-s3</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.scicrop.agroapi</groupId>
+			<artifactId>commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -166,13 +171,7 @@
 	</organization>
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-bom</artifactId>
-				<version>1.11.327</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
+			
 			<dependency>
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk-core</artifactId>

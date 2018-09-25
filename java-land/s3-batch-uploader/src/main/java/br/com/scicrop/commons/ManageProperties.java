@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.scicrop.agroapi.commons.exceptions.SciCropAgroApiException;
+
 import br.com.scicrop.entities.AppProperties;
 
 public class ManageProperties {
@@ -18,7 +20,7 @@ public class ManageProperties {
 		return INSTANCE;
 	}
 	
-	public AppProperties getAppProperties(String propertiesFilePath) throws TopLevelException {
+	public AppProperties getAppProperties(String propertiesFilePath) throws SciCropAgroApiException {
 		
 		AppProperties appProperties = null;
 		
@@ -45,7 +47,7 @@ public class ManageProperties {
 		
 	}
 	
-	public String getPropertyByName(String propertiesFilePath, String propertyName) throws TopLevelException{
+	public String getPropertyByName(String propertiesFilePath, String propertyName) throws SciCropAgroApiException{
 		
 		String propertyValue = null;
 		Properties prop = new Properties();
@@ -56,15 +58,15 @@ public class ManageProperties {
 			if (inputStream != null) {
 				prop.load(inputStream);
 				propertyValue = prop.getProperty(propertyName);
-				if(propertyValue == null || propertyValue.equals("")) throw new TopLevelException(null, "Impossible to read property \""+propertyName+"\" file at: "+propertiesFilePath); 
+				if(propertyValue == null || propertyValue.equals("")) throw new SciCropAgroApiException("Impossible to read property \""+propertyName+"\" file at: "+propertiesFilePath); 
 			}
 		} catch (IOException e) {
-			throw new TopLevelException(e);
+			throw new SciCropAgroApiException(e);
 		} finally {
 			if(inputStream != null) try {
 				inputStream.close();
 			} catch (Exception e) {
-				throw new TopLevelException(e);
+				throw new SciCropAgroApiException(e);
 			}
 		}
 		
