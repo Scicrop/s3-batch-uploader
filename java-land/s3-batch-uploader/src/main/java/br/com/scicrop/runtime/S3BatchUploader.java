@@ -42,19 +42,19 @@ public class S3BatchUploader {
 		String jsonFileName = "/tmp/s3-uploader.json";
 		File jsonFile = null;
 		FileInputStream fis = null;
-		
+
 		String propertiesFilePath = Constants.POSIX_DEFAULT_PROPERTIES_FILE_PATH;
 		String logPath = Constants.LOG_PATH; 
-		
+
 		if(Utils.getInstance().isWindows()){
 			propertiesFilePath = Utils.getInstance().getWorkingDir()+"\\"+Constants.WIN_DEFAULT_PROPERTIES_FILE_PATH;
 			jsonFileName = Utils.getInstance().getWorkingDir()+"\\s3-uploader.json";
 			logPath = Utils.getInstance().getWorkingDir()+"\\"+Constants.LOG_FILE_NAME;
 		}
-		
-		
-		
-		
+
+
+
+
 		Logger rootLogger = Logger.getRootLogger();
 		rootLogger.setLevel(Level.INFO);
 		PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
@@ -67,7 +67,7 @@ public class S3BatchUploader {
 			System.err.println("Failed to find/access "+logPath+" !");
 		}
 
-		
+
 
 		if(args != null && args.length > 0){
 			propertiesFilePath = args[0];
@@ -104,8 +104,9 @@ public class S3BatchUploader {
 					sb.append(e+" ");
 				}
 
+				Utils.getInstance().handleVerboseLog(appProperties, 'i', Constants.APP_NAME+" | "+Constants.APP_VERSION);
 				Utils.getInstance().handleVerboseLog(appProperties, 'i', "Root Folder: "+folder.getAbsolutePath());
-				Utils.getInstance().handleVerboseLog(appProperties, 'i', "Extensions to upload: "+sb.toString());
+				Utils.getInstance().handleVerboseLog(appProperties, 'i', "Extensions to upload: "+sb.toString()+"\n\n");
 
 				File[] filesArray = fileCollection.toArray (new File[fileCollection.size ()]);
 
@@ -117,7 +118,7 @@ public class S3BatchUploader {
 				boolean md5Name = false;
 				if(appProperties.getMd5name().equals("yes")) md5Name = true;
 
-				
+
 				Arrays.sort(filesArray, comparator);
 				String aggregator = appProperties.getFileaggregator().trim();
 				String[] aggregators = null;
@@ -133,7 +134,7 @@ public class S3BatchUploader {
 						String fileName  = file.getName().substring(0,file.getName().length() - file.getName().substring(file.getName().lastIndexOf(".") + 1).length() - 1);
 						String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
 						String md5 = null;
-						
+
 						try{
 							fis = new FileInputStream(file);
 							System.out.println("Calculating md5... ("+file.getName()+")");
@@ -145,8 +146,8 @@ public class S3BatchUploader {
 						}finally {
 							if(fis != null) fis.close();
 						}
-						
-						
+
+
 						for (String ag : aggregators) {
 							if(extension.equals(ag)) {
 								if(repetidos.containsKey(fileName)) {
@@ -156,7 +157,7 @@ public class S3BatchUploader {
 								}
 							}
 						}
-						
+
 						List<FileEntity> listaJson = null;
 						if(jsons.containsKey(md5)) {
 							listaJson =  jsons.get(md5);
@@ -166,32 +167,31 @@ public class S3BatchUploader {
 						FileEntity json = new FileEntity(file, extension);
 						listaJson.add(json);
 						jsons.put(md5, listaJson);
-					
+
 						checkOverwriteUpload(appProperties, file, fileName, md5);
 						Utils.getInstance().handleVerboseLog(appProperties, 'i', "File: "+file.getName()+" - " + new Date(file.lastModified()));
 					}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": is a directory, or file does not exist. Skipped!");
 				}
-				
+
 				Iterator iter = jsons.entrySet().iterator();
 
 				while (iter.hasNext()) {
 					Map.Entry mEntry = (Map.Entry) iter.next();
 					List<FileEntity> listaJson = null;
 					listaJson =  jsons.get(mEntry.getKey());
-					
+
 
 					Gson gson = new Gson();
 					String jsonString = gson.toJson(listaJson);
-					
+
 					try{
 						writer = new FileWriter(jsonFileName);
 						writer.write(jsonString);
-						
+
 						jsonFile = new File(jsonFileName);
-						
-						checkOverwriteUpload(appProperties, jsonFile, jsons.get(mEntry.getKey()).get(0).getFileName(), mEntry.getKey().toString());
+
 						//S3Component.getInstance().upload(appProperties, jsonFile, jsons.get(mEntry.getKey()).get(0).getFileName(),mEntry.getKey().toString());
-						
+
 					} catch (IOException e) {
 						Utils.getInstance().handleVerboseLog(appProperties, 'e', e.getMessage());
 					}finally {
@@ -202,12 +202,13 @@ public class S3BatchUploader {
 								Utils.getInstance().handleVerboseLog(appProperties, 'e', ioe.getMessage());
 							}
 						}
-						if(jsonFile != null && jsonFile.exists() && jsonFile.isFile()) jsonFile.delete();
+						if(jsonFile != null && jsonFile.exists() && jsonFile.isFile()) {
+							checkOverwriteUpload(appProperties, jsonFile, jsons.get(mEntry.getKey()).get(0).getFileName(), mEntry.getKey().toString());
+							jsonFile.delete();
+						}
 					}
-					
+
 				}
-				
-				
 
 			}
 		} catch (Exception e) {
@@ -217,16 +218,28 @@ public class S3BatchUploader {
 
 	}
 
-	private static void checkOverwriteUpload(AppProperties appProperties, File file, String fileName, String md5)
-			throws SciCropAgroApiException {
-		if(appProperties.getOverwrite().equalsIgnoreCase("yes")) {
-			S3Component.getInstance().upload(appProperties, file, fileName,md5);
-			
-		}else {
-			if(!S3Component.getInstance().isValidFile(appProperties, file.getName())) {
+	private static void checkOverwriteUpload(AppProperties appProperties, File file, String fileName, String md5) {
+
+		try {
+
+			if(appProperties.getOverwrite().equalsIgnoreCase("yes")) {
 				S3Component.getInstance().upload(appProperties, file, fileName,md5);
-			}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": already uploaded. Skipped!");
+
+			}else {
+
+				if(appProperties.getMd5name().equalsIgnoreCase("yes")) {
+					String ext = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+					fileName = md5+"."+ext;
+				}
+
+				if(!S3Component.getInstance().isValidFile(appProperties, fileName)) {
+					S3Component.getInstance().upload(appProperties, file, fileName,md5);
+				}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": already uploaded. Skipped!\n");
+			}
+
+		}catch(Exception e) {
+			Utils.getInstance().handleVerboseLog(appProperties, 'e', e.getMessage());
 		}
 	}
-		
+
 }
