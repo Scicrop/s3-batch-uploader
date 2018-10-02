@@ -99,6 +99,7 @@ public class S3BatchUploader {
 
 				Collection<File> fileCollection = FileUtils.listFiles(folder, exts, true);
 
+				
 				StringBuffer sb = new StringBuffer();
 				for (String e : exts) {
 					sb.append(e+" ");
