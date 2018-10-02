@@ -25,6 +25,7 @@ import com.scicrop.agroapi.commons.exceptions.SciCropAgroApiException;
 
 import br.com.scicrop.commons.Utils;
 import br.com.scicrop.entities.AppProperties;
+import br.com.scicrop.runtime.S3BatchUploader;
 
 public class S3Component {
 
@@ -192,10 +193,15 @@ public class S3Component {
 			});
 			waitForCompletion(u);
 			TransferState xfer_state = u.getState();
-			if(xfer_state.compareTo(TransferState.Completed) == 0) xfer_mgr.shutdownNow(false);
+			if(xfer_state.compareTo(TransferState.Completed) == 0) {
+				xfer_mgr.shutdownNow(false);
+				S3BatchUploader.uploadedFiles++;
+				S3BatchUploader.uploadedSize =+ uploadFile.length();
+			}
 		} catch (AmazonServiceException e) {
 			System.err.println(e.getErrorMessage());
 		}
+		
 		if(u.isDone() && delete) uploadFile.delete();
 
 	}

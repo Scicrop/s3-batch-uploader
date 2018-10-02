@@ -36,6 +36,9 @@ import br.com.scicrop.entities.FileEntity;
 
 public class S3BatchUploader {
 
+	public static long totalFiles;
+	public static long uploadedFiles;
+	public static long uploadedSize;
 
 	public static void main(String[] args) {
 		FileWriter writer = null;
@@ -52,9 +55,6 @@ public class S3BatchUploader {
 			logPath = Utils.getInstance().getWorkingDir()+"\\"+Constants.LOG_FILE_NAME;
 		}
 
-
-
-
 		Logger rootLogger = Logger.getRootLogger();
 		rootLogger.setLevel(Level.INFO);
 		PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
@@ -66,8 +66,6 @@ public class S3BatchUploader {
 		} catch (IOException e) {
 			System.err.println("Failed to find/access "+logPath+" !");
 		}
-
-
 
 		if(args != null && args.length > 0){
 			propertiesFilePath = args[0];
@@ -97,18 +95,29 @@ public class S3BatchUploader {
 				if(null == ext || ext.equals("") || ext.equals("*") || ext.equals(";") || ext.equals("*;")) ext = null;
 				else exts = appProperties.getFileextension().split(";");
 
+<<<<<<< HEAD
 				Collection<File> fileCollection = FileUtils.listFiles(folder, exts, true);
 
 				
+=======
+>>>>>>> 1b4db9e12899c80039afe8395475d092864547e5
 				StringBuffer sb = new StringBuffer();
 				for (String e : exts) {
 					sb.append(e+" ");
 				}
-
+				
 				Utils.getInstance().handleVerboseLog(appProperties, 'i', Constants.APP_NAME+" | "+Constants.APP_VERSION);
 				Utils.getInstance().handleVerboseLog(appProperties, 'i', "Root Folder: "+folder.getAbsolutePath());
 				Utils.getInstance().handleVerboseLog(appProperties, 'i', "Extensions to upload: "+sb.toString()+"\n\n");
 
+				Utils.getInstance().handleVerboseLog(appProperties, 'i', "Inspecting files...\n\n");
+				
+				Collection<File> fileCollection = FileUtils.listFiles(folder, exts, true);
+
+				totalFiles = fileCollection.size();
+				
+				Utils.getInstance().handleVerboseLog(appProperties, 'i', "Files inspected: "+totalFiles+"\n\n");
+				
 				File[] filesArray = fileCollection.toArray (new File[fileCollection.size ()]);
 
 				Comparator<File> comparator = null;
@@ -172,6 +181,9 @@ public class S3BatchUploader {
 						checkOverwriteUpload(appProperties, file, fileName, md5);
 						Utils.getInstance().handleVerboseLog(appProperties, 'i', "File: "+file.getName()+" - " + new Date(file.lastModified()));
 					}else Utils.getInstance().handleVerboseLog(appProperties, 'e', file.getName()+": is a directory, or file does not exist. Skipped!");
+				
+				// log de upload
+					Utils.getInstance().handleVerboseLog(appProperties, 'i', "File: "+file.getName()+" - " + new Date(file.lastModified()));
 				}
 
 				Iterator iter = jsons.entrySet().iterator();
