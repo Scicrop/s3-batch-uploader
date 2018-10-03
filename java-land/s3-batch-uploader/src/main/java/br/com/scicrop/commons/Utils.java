@@ -1,10 +1,10 @@
 package br.com.scicrop.commons;
 
 import java.text.DecimalFormat;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 
 import br.com.scicrop.entities.AppProperties;
 
@@ -99,11 +99,26 @@ public class Utils {
 
 	public String formatTransferedProgress(long completeFileSize, long transferedFileSize) {
 		DecimalFormat dfa = new DecimalFormat("000.0");
-		DecimalFormat dfb = new DecimalFormat("###,###,###,###");
+		
 		double currentProgress;
 		String formatedProgress;
 		currentProgress = ((((double)transferedFileSize) * 100) / ((double)completeFileSize));
-		formatedProgress = dfa.format(currentProgress)+"% "+dfb.format(transferedFileSize) + " bytes";
+		formatedProgress = dfa.format(currentProgress)+"% "+formatBytes(transferedFileSize) + " bytes";
 		return formatedProgress;
 	}
+	
+	public String formatBytes(long size) {
+		DecimalFormat dfb = new DecimalFormat("###,###,###,###");
+		return dfb.format(size);
+	}
+	
+	public String formatInterval(long time){
+		
+        final long hr = TimeUnit.MILLISECONDS.toHours(time);
+        final long min = TimeUnit.MILLISECONDS.toMinutes(time - TimeUnit.HOURS.toMillis(hr));
+        final long sec = TimeUnit.MILLISECONDS.toSeconds(time - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+        final long ms = TimeUnit.MILLISECONDS.toMillis(time - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
+        return String.format("%02d:%02d:%02d.%03d", hr, min, sec, ms);
+    }
+	
 }

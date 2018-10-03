@@ -25,7 +25,6 @@ import com.scicrop.agroapi.commons.exceptions.SciCropAgroApiException;
 
 import br.com.scicrop.commons.Utils;
 import br.com.scicrop.entities.AppProperties;
-import br.com.scicrop.runtime.S3BatchUploader;
 
 public class S3Component {
 
@@ -185,8 +184,6 @@ public class S3Component {
 					if(tSum < uploadFile.length()) transferred = tSum;
 					else transferred = uploadFile.length();
 
-					//System.out.println(uploadFile.getName() + ": "+uploadFile.length()+ " | " +transfered);
-
 					Utils.getInstance().printTransferProgress(bucket_name + "/" + uploadFile.getName(), uploadFile.length(), transferred);
 
 				}
@@ -195,8 +192,7 @@ public class S3Component {
 			TransferState xfer_state = u.getState();
 			if(xfer_state.compareTo(TransferState.Completed) == 0) {
 				xfer_mgr.shutdownNow(false);
-				S3BatchUploader.uploadedFiles++;
-				S3BatchUploader.uploadedSize =+ uploadFile.length();
+
 			}
 		} catch (AmazonServiceException e) {
 			System.err.println(e.getErrorMessage());
