@@ -126,14 +126,50 @@ public class S3Component {
 		}else System.out.println("Invalid file: "+keyName);
 	}
 
+	public boolean isValidFile(AppProperties appProperties, String keyName, String md5) throws SciCropAgroApiException {
+
+		AmazonS3 s3client = getS3Client(appProperties);
+
+		return isValidFile(s3client, appProperties.getBucketnName(), keyName, md5);
+	}
+	
+	public boolean isValidFile(AmazonS3 s3client, String bucketName, String keyName, String md5) throws SciCropAgroApiException {
+
+		boolean isValidFile = false;
+		S3Object object = null;
+		try {
+
+			object = s3client.getObject(new GetObjectRequest(bucketName, keyName));
+			ObjectMetadata objectMetadata = object.getObjectMetadata();
+			
+			if(objectMetadata.getContentMD5().toUpperCase().equals(md5.toUpperCase())) isValidFile = true;
+			
+		} catch (AmazonS3Exception s3e ) {
+			
+				isValidFile = false;
+			
+		} catch (SdkClientException s3ce){
+			isValidFile = false;
+		}finally {
+			if(object != null)
+				try {
+					object.close();
+				} catch (IOException e) {
+					throw new SciCropAgroApiException(e);
+				}
+		}
+
+		return isValidFile;
+	}
+	
 	public boolean isValidFile(AppProperties appProperties, String keyName) throws SciCropAgroApiException {
 
 		AmazonS3 s3client = getS3Client(appProperties);
 
-		return isValidFile(s3client, appProperties.getBucketnName(), keyName);
+		return exists(s3client, appProperties.getBucketnName(), keyName);
 	}
 	
-	public boolean isValidFile(AmazonS3 s3client, String bucketName, String keyName) throws SciCropAgroApiException {
+	public boolean exists(AmazonS3 s3client, String bucketName, String keyName) throws SciCropAgroApiException {
 
 		boolean isValidFile = false;
 		S3Object object = null;
