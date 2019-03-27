@@ -107,9 +107,14 @@ public class S3Component {
 				String ext = uploadFile.getName().substring(uploadFile.getName().lastIndexOf(".") + 1);
 				if(md5 != null) {
 					keyName = md5;
+					keyName += "."+ext;
 				}
-				keyName += "."+ext;
-
+				
+				if(keyName.contains("/")) {
+					String[] keyNameSplit = keyName.split("/");
+					keyName = keyNameSplit[keyNameSplit.length-1];
+				}
+				
 				uploadFileWithListener(keyName, bucketName, uploadFile, s3client, delete);
 
 			} catch (AmazonServiceException ase) {
