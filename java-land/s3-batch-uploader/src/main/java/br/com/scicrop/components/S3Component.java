@@ -115,6 +115,8 @@ public class S3Component {
 					keyName = keyNameSplit[keyNameSplit.length-1];
 				}
 				
+				System.out.println("keyName: "+keyName + " | bucketName: "+bucketName+" | uploadFile: "+uploadFile.getAbsolutePath()+" | delete: "+delete);
+				
 				uploadFileWithListener(keyName, bucketName, uploadFile, s3client, delete);
 
 			} catch (AmazonServiceException ase) {
